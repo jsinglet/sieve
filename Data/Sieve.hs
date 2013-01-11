@@ -67,8 +67,16 @@ newSieve ::
   -> Sieve a -- ^ The resulting 'Sieve'.
 newSieve a xs = xs ++? Sieve a []
 
--- | The operator for building up lists with a Sieve. The operator should be read as \"Conditionally Add.\"
-(++?) :: [a] -> Sieve a -> Sieve a
+-- | The operator for building up lists with a Sieve. The operator should be read as \"Conditionally Add.\" All interaction with
+-- Sieve should ideally be through this function/operator. The most basic usage of it can be seen in the following example:
+--
+-- >  f3 =  [0,11,10] ++? ([7,8,9]  ++?  ([4,5,6] ++? newSieve (\x -> x > 2) [1,2,3]))
+--
+-- This produces the list @[11,10,7,8,9,4,5,6,3]@.
+(++?) ::
+  [a] -- ^ The list you wish to conditionally add to the 'Sieve'.
+  -> Sieve a -- ^ The 'Sieve' to add elements to.
+  -> Sieve a -- ^ The resulting 'Sieve' comprised of the contents of the old 'Sieve' combined with the elements from argument one that met the 'relation' criteria.
 (++?) [] b = b
 (++?) a b = Sieve rel $ Data.Sieve.filter rel a ++ toList  b
             where
@@ -91,3 +99,6 @@ f2 s = [7,8,1] ++? s
 
 f1 :: Sieve Int 
 f1 = let numbersGreaterThanTwo = newSieve (\x -> x > 2) [1,2,3] in f2 $ [4,5,6] ++? numbersGreaterThanTwo
+
+f3 :: Sieve Int
+f3 =  [0,11,10] ++? ([7,8,9]  ++?  ([4,5,6] ++? newSieve (\x -> x > 2) [1,2,3]))
